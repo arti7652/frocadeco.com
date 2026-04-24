@@ -114,14 +114,14 @@ function getEditorialTone() {
 
 function getVisualTone() {
   return {
-    shell: 'bg-[#07101f] text-white',
-    panel: 'border border-white/10 bg-[rgba(11,18,31,0.78)] shadow-[0_28px_80px_rgba(0,0,0,0.35)]',
-    soft: 'border border-white/10 bg-white/6',
-    muted: 'text-slate-300',
-    title: 'text-white',
-    badge: 'bg-[#8df0c8] text-[#07111f]',
-    action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
-    actionAlt: 'border border-white/10 bg-white/6 text-white hover:bg-white/10',
+    shell: 'bg-[linear-gradient(180deg,#fffbf8_0%,#f9f3ff_50%,#fef8f2_100%)] text-slate-900',
+    panel: 'border border-white/70 bg-white/84 shadow-[0_30px_100px_rgba(209,173,230,0.16)] backdrop-blur-xl',
+    soft: 'border border-white/70 bg-white/76 backdrop-blur-md',
+    muted: 'text-slate-500',
+    title: 'text-slate-900',
+    badge: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#d48cff_100%)] text-[#6d3a8a]',
+    action: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#c777ff_100%)] text-white hover:opacity-90',
+    actionAlt: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
   }
 }
 
@@ -345,61 +345,237 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
 
 function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; imagePosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
   const tone = getVisualTone()
-  const gallery = imagePosts.length ? imagePosts.slice(0, 5) : articlePosts.slice(0, 5)
-  const creators = profilePosts.slice(0, 3)
+  const gallery = imagePosts.length ? imagePosts.slice(0, 8) : articlePosts.slice(0, 8)
+  const heroGallery = gallery.slice(0, 6)
+  const lead = gallery[3] || gallery[0]
+  const stream = gallery.slice(4, 8)
+  const creators = profilePosts.length ? profilePosts.slice(0, 3) : gallery.slice(0, 3)
+  const archiveRoutes = SITE_CONFIG.tasks.filter((task) => task.key !== primaryTask?.key).slice(0, 5)
+  const leftPost = heroGallery[0] || lead
+  const centerPost = heroGallery[1] || leftPost
+  const rightPost = heroGallery[2] || lead
+  const leftHref = leftPost ? getTaskHref(resolveTaskKey(leftPost.task, 'image'), leftPost.slug) : '/images'
+  const centerHref = centerPost ? getTaskHref(resolveTaskKey(centerPost.task, 'image'), centerPost.slug) : '/images'
+  const rightHref = rightPost ? getTaskHref(resolveTaskKey(rightPost.task, 'image'), rightPost.slug) : '/images'
 
   return (
     <main className={tone.shell}>
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-          <div>
+      <section className="mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:px-8 lg:pb-16 lg:pt-6">
+        <div className="relative overflow-hidden rounded-[2.8rem] border border-white/70 bg-[linear-gradient(135deg,rgba(249,239,232,0.96)_0%,rgba(248,237,255,0.96)_52%,rgba(255,247,235,0.94)_100%)] px-6 py-12 shadow-[0_30px_100px_rgba(209,173,230,0.14)] sm:px-8">
+          <div className="pointer-events-none absolute left-8 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border border-white/80 bg-white/50" />
+          <div className="pointer-events-none absolute right-6 top-20 h-8 w-8 rounded-full border-2 border-white/70" />
+          <div className="pointer-events-none absolute left-8 top-32 h-0 w-0 rotate-12 border-b-[12px] border-l-[10px] border-r-[10px] border-b-white/60 border-l-transparent border-r-transparent opacity-70" />
+          <div className="pointer-events-none absolute left-5 bottom-5 grid grid-cols-4 gap-2 opacity-60">
+            {Array.from({ length: 16 }).map((_, index) => (
+              <span key={index} className="h-1.5 w-1.5 rounded-full bg-white/90" />
+            ))}
+          </div>
+          <div className="mx-auto max-w-3xl text-center">
             <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
-              <ImageIcon className="h-3.5 w-3.5" />
-              Visual publishing system
+              <Compass className="h-3.5 w-3.5" />
+              Visual AI companion
             </span>
-            <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
-              Image-led discovery with creator profiles and a more gallery-like browsing rhythm.
+            <h1 className={`mt-6 text-5xl font-semibold tracking-[-0.07em] sm:text-6xl ${tone.title}`}>
+              A softer assistant to help you create, explore, and organize visuals.
             </h1>
-            <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <p className={`mx-auto mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>
+              {SITE_CONFIG.description} The layout now follows the reference more literally: warm blush gradients, elevated white devices, and an AI-assistant style composition that feels distinct from the shared base repo.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href={primaryTask?.route || '/images'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
-                Open gallery
+                Start exploring
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/profile" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
-                Meet creators
+              <Link href="/create/image" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
+                Create a visual
               </Link>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {gallery.slice(0, 5).map((post, index) => (
-              <Link
-                key={post.id}
-                href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)}
-                className={index === 0 ? `col-span-2 row-span-2 overflow-hidden rounded-[2.4rem] ${tone.panel}` : `overflow-hidden rounded-[1.8rem] ${tone.soft}`}
-              >
-                <div className={index === 0 ? 'relative h-[360px]' : 'relative h-[170px]'}>
-                  <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+
+          <div className="mt-12 flex flex-col items-center justify-center gap-8 lg:flex-row lg:items-end lg:gap-10">
+            <Link href={leftHref} className="phone-frame ambient-ring relative w-full max-w-[292px] p-3 lg:mb-4">
+              <div className="relative min-h-[525px] overflow-hidden rounded-[2rem]">
+                <ContentImage src={getPostImage(leftPost)} alt={leftPost?.title || 'Assistant visual'} fill className="object-cover" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(233,189,255,0.18)_45%,rgba(118,76,152,0.58)_100%)]" />
+                <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-4 text-[11px] font-semibold text-slate-900">
+                  <span>9:41</span>
+                  <span className="rounded-full bg-white/72 px-2 py-1 text-[10px] text-[#8e59a8]">Assistant</span>
                 </div>
-              </Link>
-            ))}
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/72">Experience AI Assistant</p>
+                  <h2 className="mt-3 text-[2.25rem] font-semibold leading-[1.05] tracking-[-0.06em]">
+                    Your smart AI assistant is ready helping you..
+                  </h2>
+                  <p className="mt-4 text-sm leading-6 text-white/78">
+                    Explore image-led posts and collections through a calmer assistant-style flow with faster discovery.
+                  </p>
+                  <div className="mt-5 flex items-center justify-between">
+                    <span className="rounded-full bg-white/20 px-4 py-2 text-xs font-semibold backdrop-blur">Open gallery</span>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-8 rounded-full bg-white/90" />
+                      <span className="h-1.5 w-2 rounded-full bg-white/50" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link href={centerHref} className="phone-frame ambient-ring relative z-10 w-full max-w-[312px] p-3">
+              <div className="rounded-[2rem] bg-white p-4">
+                <div className="rounded-[1.8rem] bg-[linear-gradient(180deg,#fff8f4_0%,#f7e8ff_54%,#fff4ea_100%)] p-5 shadow-[0_16px_38px_rgba(209,173,230,0.16)]">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-900">
+                    <span>9:41</span>
+                    <span className="rounded-full bg-white px-2 py-1 text-[10px] text-[#b36a9d]">AI</span>
+                  </div>
+                  <div className="mt-5 text-center">
+                    <p className="text-xl font-semibold tracking-[-0.05em] text-[#564080]">Hey Arafat</p>
+                    <p className="mt-1 text-2xl font-semibold tracking-[-0.05em] text-[#423066]">How can I help you?</p>
+                  </div>
+
+                  <div className="mt-5 rounded-[1.4rem] border border-white/70 bg-white/88 p-3 shadow-[0_8px_26px_rgba(209,173,230,0.12)]">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+                        Ask me anything
+                      </div>
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ffcfbd_0%,#b97cff_100%)] text-white">
+                        <Compass className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-4 gap-2 text-[11px] font-medium text-slate-500">
+                      {['Images', 'Ideas', 'Tasks', 'Voice'].map((item) => (
+                        <div key={item} className="rounded-full bg-[#fff7f1] px-3 py-2 text-center">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-[1.5rem] bg-[linear-gradient(135deg,#f2b8ff_0%,#f9d7ff_36%,#ffd9be_100%)] p-4 text-[#5a3a74] shadow-[0_12px_32px_rgba(209,173,230,0.18)]">
+                  <p className="text-sm font-semibold">Talk to {SITE_CONFIG.name} AI</p>
+                  <p className="mt-1 text-xs opacity-80">Enhance ideas with a softer assistant-led interface.</p>
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold">
+                    <Globe2 className="h-3.5 w-3.5" />
+                    Get Start
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-slate-900">Quick Tools</p>
+                    <span className="text-xs text-slate-500">View all</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-3">
+                    {[
+                      ['Strategic', 'Prompt planning'],
+                      ['Trending', 'Explore fresh visuals'],
+                      ['Content', 'Organize image ideas'],
+                    ].map(([title, body]) => (
+                      <div key={title} className="rounded-[1.25rem] border border-slate-100 bg-white p-3 shadow-[0_10px_24px_rgba(209,173,230,0.1)]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[linear-gradient(135deg,#fff0ea_0%,#f6d8ff_100%)] text-[#b36a9d]">
+                          <ImageIcon className="h-4 w-4" />
+                        </div>
+                        <p className="mt-3 text-sm font-semibold text-slate-900">{title}</p>
+                        <p className="mt-1 text-[11px] leading-5 text-slate-500">{body}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-5 grid grid-cols-5 gap-2 rounded-[1.3rem] border border-slate-100 bg-white p-2 text-center text-[11px] font-medium text-slate-500 shadow-[0_8px_20px_rgba(209,173,230,0.08)]">
+                  {['Home', 'Tasks', 'Chat', 'Projects', 'Profile'].map((item, index) => (
+                    <div key={item} className={`rounded-full px-2 py-2 ${index === 2 ? 'bg-[linear-gradient(135deg,#ffd5c8_0%,#c781ff_100%)] text-white' : ''}`}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Link>
+
+            <Link href={rightHref} className="phone-frame ambient-ring relative w-full max-w-[236px] p-3 lg:mb-4">
+              <div className="min-h-[465px] rounded-[2rem] bg-[linear-gradient(180deg,#ffe5d6_0%,#f4d2ff_46%,#fff0df_100%)] p-5">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-900">
+                  <span>9:41</span>
+                  <span>•••</span>
+                </div>
+                <div className="mt-14 flex justify-center">
+                  <div className="flex h-40 w-40 items-center justify-center rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.55)_0%,rgba(241,198,255,0.42)_48%,rgba(226,160,255,0.22)_100%)] shadow-[0_20px_60px_rgba(209,173,230,0.2)]">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/70 bg-white/40 text-[#ba77ac]">
+                      <Compass className="h-10 w-10" />
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-12 text-center">
+                  <p className="text-xs leading-6 text-[#8d739d]">
+                    and can’t find peace though heavy and forget to breathe
+                  </p>
+                  <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-[#54405c]">
+                    Emptiness settles where it used to be.
+                  </p>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Visual notes</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Larger media surfaces, fewer boxes, stronger pacing.</h2>
-            <p className={`mt-4 max-w-2xl text-sm leading-8 ${tone.muted}`}>This product avoids business-directory density and publication framing. The homepage behaves more like a visual board, with profile surfaces and imagery leading the experience.</p>
+        <div className="mt-12 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+          <div className={`overflow-hidden rounded-[2.2rem] ${tone.panel}`}>
+            {lead ? (
+              <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
+                <div className="relative min-h-[340px] overflow-hidden">
+                  <ContentImage src={getPostImage(lead)} alt={lead.title} fill className="object-cover" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,201,184,0.08)_0%,rgba(221,171,255,0.16)_50%,rgba(255,255,255,0.16)_100%)]" />
+                </div>
+                <div className="p-7">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Spotlight visual</p>
+                  <h2 className="mt-3 text-4xl font-semibold tracking-[-0.05em]">{lead.title}</h2>
+                  <p className={`mt-4 text-sm leading-8 ${tone.muted}`}>
+                    {lead.summary || 'A lead visual surface with softer spacing, warmer gradients, and a calmer assistant-led rhythm pulled closer to the reference interface.'}
+                  </p>
+                  <Link href={getTaskHref(resolveTaskKey(lead.task, 'image'), lead.slug)} className={`mt-7 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
+                    View image post
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            ) : null}
           </div>
+
+          <div className="grid gap-4">
+            <div className={`rounded-[2rem] p-6 ${tone.panel}`}>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Assistant notes</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Less marketing site, more soft assistant product.</h2>
+              <p className={`mt-4 text-sm leading-8 ${tone.muted}`}>
+                The new system leans on warm blush gradients, elevated white cards, and softer assistant-app framing so the site tracks much closer to the supplied reference.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {creators.map((post) => (
+                <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
+                  <div className="relative h-40 overflow-hidden rounded-[1.2rem]">
+                    <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
+                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Supporting visual lane with a quieter presentation.'}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12">
           <div className="grid gap-4 md:grid-cols-3">
-            {creators.map((post) => (
-              <Link key={post.id} href={`/profile/${post.slug}`} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
-                <div className="relative h-40 overflow-hidden rounded-[1.2rem]">
+            {stream.map((post, index) => (
+              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)} className={`overflow-hidden rounded-[1.8rem] ${index === 1 ? tone.panel : tone.soft}`}>
+                <div className="relative h-56 overflow-hidden">
                   <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
-                <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Creator profile and visual identity surface.'}</p>
+                <div className="p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">Lane {index + 1}</p>
+                  <h3 className="mt-3 text-xl font-semibold">{post.title}</h3>
+                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'A supporting gallery tile in the homepage stream.'}</p>
+                </div>
               </Link>
             ))}
           </div>

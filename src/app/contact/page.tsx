@@ -1,4 +1,4 @@
-import { Building2, FileText, Image as ImageIcon, Mail, MapPin, Phone, Sparkles, Bookmark } from 'lucide-react'
+import { Building2, FileText, Image as ImageIcon, Mail, MapPin, Phone, Sparkles, Bookmark, Wand2, MessageSquareMore } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { SITE_CONFIG } from '@/lib/site-config'
@@ -27,11 +27,11 @@ function getTone(kind: ReturnType<typeof getProductKind>) {
   }
   if (kind === 'visual') {
     return {
-      shell: 'bg-[#07101f] text-white',
-      panel: 'border border-white/10 bg-white/6',
-      soft: 'border border-white/10 bg-white/5',
-      muted: 'text-slate-300',
-      action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
+      shell: 'bg-[linear-gradient(180deg,#fffaf7_0%,#f9f1ff_52%,#fff6ef_100%)] text-slate-900',
+      panel: 'border border-white/70 bg-white/88 shadow-[0_24px_80px_rgba(209,173,230,0.16)] backdrop-blur-xl',
+      soft: 'border border-white/70 bg-white/76 shadow-[0_16px_42px_rgba(209,173,230,0.12)] backdrop-blur-xl',
+      muted: 'text-slate-500',
+      action: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#c777ff_100%)] text-white hover:opacity-90',
     }
   }
   return {
@@ -82,9 +82,23 @@ export default function ContactPage() {
       <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <section className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Contact {SITE_CONFIG.name}</p>
-            <h1 className="mt-4 text-5xl font-semibold tracking-[-0.05em]">A support page that matches the product, not a generic contact form.</h1>
-            <p className={`mt-5 max-w-2xl text-sm leading-8 ${tone.muted}`}>Tell us what you are trying to publish, fix, or launch. We will route it through the right lane instead of forcing every request into the same support bucket.</p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#ffe3d7_0%,#f3d7ff_100%)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8a5fa7]">
+              <MessageSquareMore className="h-3.5 w-3.5" />
+              Contact {SITE_CONFIG.name}
+            </div>
+            <h1 className="mt-4 text-5xl font-semibold tracking-[-0.05em]">Reach the team through the same soft assistant-style experience.</h1>
+            <p className={`mt-5 max-w-2xl text-sm leading-8 ${tone.muted}`}>Share what you are trying to publish, launch, or resolve and we will route it through the right visual lane instead of a flat generic support bucket.</p>
+            <div className="mt-8 rounded-[1.7rem] bg-[linear-gradient(135deg,#fff0ea_0%,#f8e6ff_58%,#fff7ee_100%)] p-5 shadow-[0_14px_40px_rgba(209,173,230,0.14)]">
+              <div className="flex items-start gap-3">
+                <Wand2 className="mt-1 h-5 w-5 text-[#b36a9d]" />
+                <div>
+                  <p className="text-sm font-semibold">Visual support, not plain ticketing</p>
+                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>
+                    Collaboration requests, licensing questions, creator features, and publishing support now sit inside a page layout that matches the home experience.
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="mt-8 space-y-4">
               {lanes.map((lane) => (
                 <div key={lane.title} className={`rounded-[1.6rem] p-5 ${tone.soft}`}>
@@ -98,11 +112,12 @@ export default function ContactPage() {
 
           <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
             <h2 className="text-2xl font-semibold">Send a message</h2>
+            <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>Use the form below to reach the right team with full context. The interface keeps the same pastel card rhythm and lighter visual tone already introduced on the homepage.</p>
             <form className="mt-6 grid gap-4">
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Your name" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="What do you need help with?" />
-              <textarea className="min-h-[180px] rounded-2xl border border-current/10 bg-transparent px-4 py-3 text-sm" placeholder="Share the full context so we can respond with the right next step." />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="Your name" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="Email address" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="What do you need help with?" />
+              <textarea className="min-h-[180px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" placeholder="Share the full context so we can respond with the right next step." />
               <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${tone.action}`}>Send message</button>
             </form>
           </div>
