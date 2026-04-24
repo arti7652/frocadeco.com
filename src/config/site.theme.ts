@@ -1,32 +1,32 @@
 import { defineSiteTheme } from '@/config/site.theme.defaults'
 
 export const SITE_THEME = defineSiteTheme({
-  shell: 'directory',
+  shell: 'studio',
   hero: {
-    variant: 'search-first',
-    eyebrow: 'Business discovery system',
+    variant: 'gallery-mosaic',
+    eyebrow: 'Curated image platform',
   },
   home: {
-    layout: 'directory-stack',
-    primaryTask: 'listing',
-    featuredTaskKeys: ['listing', 'profile', 'classified'],
+    layout: 'studio-showcase',
+    primaryTask: 'image',
+    featuredTaskKeys: ['image'],
   },
   navigation: {
-    variant: 'compact',
+    variant: 'capsule',
   },
   footer: {
-    variant: 'columns',
+    variant: 'dense',
   },
   cards: {
-    listing: 'listing-elevated',
+    listing: 'catalog-grid',
     article: 'editorial-feature',
     image: 'studio-panel',
     profile: 'studio-panel',
-    classified: 'catalog-grid',
-    pdf: 'catalog-grid',
-    sbm: 'editorial-feature',
+    classified: 'listing-elevated',
+    pdf: 'editorial-feature',
+    sbm: 'catalog-grid',
     social: 'studio-panel',
-    org: 'catalog-grid',
+    org: 'studio-panel',
     comment: 'editorial-feature',
   },
 })
