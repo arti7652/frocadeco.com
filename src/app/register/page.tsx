@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Bookmark, Building2, FileText, Image as ImageIcon, Sparkles } from 'lucide-react'
+import { Bookmark, Building2, FileText, Image as ImageIcon, Sparkles, Wand2, LayoutGrid, UserRoundPlus } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { getFactoryState } from '@/design/factory/get-factory-state'
@@ -33,14 +33,14 @@ function getRegisterConfig(kind: ReturnType<typeof getProductKind>) {
   }
   if (kind === 'visual') {
     return {
-      shell: 'bg-[#07101f] text-white',
-      panel: 'border border-white/10 bg-white/6',
-      side: 'border border-white/10 bg-white/5',
-      muted: 'text-slate-300',
-      action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
+      shell: 'bg-[linear-gradient(180deg,#fffaf7_0%,#f9f1ff_52%,#fff6ef_100%)] text-slate-900',
+      panel: 'border border-white/70 bg-white/88 shadow-[0_24px_80px_rgba(209,173,230,0.16)] backdrop-blur-xl',
+      side: 'border border-white/70 bg-white/76 shadow-[0_20px_60px_rgba(209,173,230,0.12)] backdrop-blur-xl',
+      muted: 'text-slate-500',
+      action: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#c777ff_100%)] text-white hover:opacity-90',
       icon: ImageIcon,
-      title: 'Set up your creator profile',
-      body: 'Launch a visual-first account with gallery publishing, identity surfaces, and profile-led discovery.',
+      title: 'Set up your visual assistant profile',
+      body: 'Create an account for image publishing, guided discovery, and assistant-led creator workflows inside the new pastel interface.',
     }
   }
   return {
@@ -71,23 +71,44 @@ export default function RegisterPage() {
       <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
           <div className={`rounded-[2rem] p-8 ${config.side}`}>
-            <Icon className="h-8 w-8" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#ffe3d7_0%,#f3d7ff_100%)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8a5fa7]">
+              <Icon className="h-3.5 w-3.5" />
+              New account
+            </div>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">{config.title}</h1>
             <p className={`mt-5 text-sm leading-8 ${config.muted}`}>{config.body}</p>
-            <div className="mt-8 grid gap-4">
-              {['Different onboarding per product family', 'No repeated one-size-fits-all shell', 'Profile, publishing, and discovery aligned'].map((item) => (
-                <div key={item} className="rounded-[1.5rem] border border-current/10 px-4 py-4 text-sm">{item}</div>
+            <div className="mt-8 rounded-[1.7rem] bg-[linear-gradient(135deg,#fff0ea_0%,#f8e6ff_58%,#fff7ee_100%)] p-5 shadow-[0_14px_40px_rgba(209,173,230,0.14)]">
+              <p className="text-sm font-semibold">Launch with the assistant flow</p>
+              <p className={`mt-2 text-sm leading-7 ${config.muted}`}>
+                Start with identity, publishing intent, and your first collection so onboarding feels like part of the product instead of a plain form.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+              {[
+                { icon: UserRoundPlus, title: 'Profile-first setup', body: 'Create your visual identity before posting.' },
+                { icon: Wand2, title: 'Assistant-guided flow', body: 'Start with a cleaner, softer account journey.' },
+                { icon: LayoutGrid, title: 'Gallery-ready tools', body: 'Move directly into image publishing and discovery.' },
+              ].map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/70 bg-white/70 px-4 py-4 text-sm shadow-[0_8px_24px_rgba(209,173,230,0.1)]">
+                  <item.icon className="h-4 w-4 text-[#b36a9d]" />
+                  <p className="mt-3 font-semibold">{item.title}</p>
+                  <p className={`mt-2 leading-6 ${config.muted}`}>{item.body}</p>
+                </div>
               ))}
             </div>
           </div>
 
           <div className={`rounded-[2rem] p-8 ${config.panel}`}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Create account</p>
+            <div className="mt-4 rounded-[1.6rem] bg-[linear-gradient(135deg,#fff4ee_0%,#f7e8ff_100%)] p-5 shadow-[0_12px_30px_rgba(209,173,230,0.12)]">
+              <p className="text-sm font-semibold">Build your profile and open the assistant.</p>
+              <p className={`mt-2 text-sm leading-7 ${config.muted}`}>Get access to image publishing, profile surfaces, and visual discovery through the same fresh layout language as the homepage.</p>
+            </div>
             <form className="mt-6 grid gap-4">
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Full name" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Password" type="password" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="What are you creating or publishing?" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="Full name" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="Email address" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="Password" type="password" />
+              <input className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm" placeholder="What are you creating or publishing?" />
               <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${config.action}`}>Create account</button>
             </form>
             <div className={`mt-6 flex items-center justify-between text-sm ${config.muted}`}>

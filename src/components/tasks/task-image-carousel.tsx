@@ -38,7 +38,7 @@ export function TaskImageCarousel({ images }: { images: string[] }) {
               <div className="relative aspect-[16/10] w-full">
                 <ContentImage
                   src={src}
-                  alt={`Gallery image ${index + 1} for verified business listing`}
+                  alt={`Gallery image ${index + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 900px"
                   quality={78}

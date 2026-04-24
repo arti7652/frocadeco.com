@@ -56,28 +56,28 @@ const getImageUrl = (post: SitePost, content: ListingContent) => {
 
 const cardStyles = {
   'listing-elevated': {
-    frame: 'rounded-[1.9rem] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)] hover:-translate-y-1 hover:shadow-[0_28px_75px_rgba(15,23,42,0.14)]',
-    muted: 'text-slate-600',
-    title: 'text-slate-950',
-    badge: 'bg-slate-950 text-white',
+    frame: 'rounded-[2rem] border border-white/70 bg-white/86 shadow-[0_24px_70px_rgba(149,166,230,0.16)] hover:-translate-y-1 hover:shadow-[0_28px_82px_rgba(149,166,230,0.2)] backdrop-blur-xl',
+    muted: 'text-slate-500',
+    title: 'text-slate-900',
+    badge: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#c777ff_100%)] text-white',
   },
   'editorial-feature': {
-    frame: 'rounded-[1.8rem] border border-[rgba(125,83,45,0.12)] bg-[#fffaf3] shadow-[0_18px_55px_rgba(89,52,24,0.1)] hover:-translate-y-1 hover:shadow-[0_26px_75px_rgba(89,52,24,0.14)]',
+    frame: 'rounded-[2rem] border border-[rgba(125,83,45,0.12)] bg-[#fffaf3] shadow-[0_18px_55px_rgba(89,52,24,0.1)] hover:-translate-y-1 hover:shadow-[0_26px_75px_rgba(89,52,24,0.14)]',
     muted: 'text-[#71584b]',
     title: 'text-[#2b1d17]',
     badge: 'bg-[#2b1d17] text-[#fff3df]',
   },
   'studio-panel': {
-    frame: 'rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(7,17,31,0.96),rgba(12,23,43,0.96))] text-white shadow-[0_24px_80px_rgba(15,23,42,0.35)] hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(15,23,42,0.42)]',
-    muted: 'text-slate-300',
-    title: 'text-white',
-    badge: 'bg-[#8df0c8] text-[#07111f]',
+    frame: 'rounded-[2.15rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,247,255,0.94))] text-slate-900 shadow-[0_24px_80px_rgba(149,166,230,0.18)] hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(149,166,230,0.22)]',
+    muted: 'text-slate-500',
+    title: 'text-slate-900',
+    badge: 'bg-[linear-gradient(135deg,#ffc6b7_0%,#c777ff_100%)] text-white',
   },
   'catalog-grid': {
-    frame: 'rounded-[1.8rem] border border-[rgba(67,78,41,0.14)] bg-[#f8faf1] shadow-[0_18px_58px_rgba(55,65,31,0.1)] hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(55,65,31,0.14)]',
-    muted: 'text-[#5b664c]',
-    title: 'text-[#1f2617]',
-    badge: 'bg-[#1f2617] text-[#edf5dc]',
+    frame: 'rounded-[2rem] border border-[rgba(125,83,45,0.12)] bg-[#f7efe6] shadow-[0_18px_58px_rgba(72,47,30,0.1)] hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(72,47,30,0.14)]',
+    muted: 'text-[#6c5548]',
+    title: 'text-[#241711]',
+    badge: 'bg-[#241711] text-[#fff1e2]',
   },
 } as const
 
@@ -106,7 +106,8 @@ export function TaskPostCard({
   const variant = taskKey || 'listing'
   const visualVariant = cardStyles[getVariantForTask(variant)]
   const isBookmarkVariant = variant === 'sbm' || variant === 'social'
-  const imageAspect = variant === 'image' ? 'aspect-[4/5]' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
+  const isImageVariant = variant === 'image'
+  const imageAspect = isImageVariant ? 'aspect-[4/5]' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
   const altText = `${post.title} ${category} ${variant === 'listing' ? 'business listing' : variant} image`
   const imageSizes = variant === 'article' ? '(max-width: 640px) 90vw, (max-width: 1024px) 48vw, 420px' : variant === 'image' ? '(max-width: 640px) 82vw, (max-width: 1024px) 34vw, 320px' : '(max-width: 640px) 85vw, (max-width: 1024px) 42vw, 340px'
 
@@ -178,6 +179,25 @@ export function TaskPostCard({
           <h3 className={`mt-3 line-clamp-2 text-lg font-semibold leading-snug group-hover:opacity-85 ${visualVariant.title}`}>{post.title}</h3>
           <p className={`mt-2 line-clamp-3 text-sm leading-7 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 120 : 180) || 'Explore this bookmark.'}</p>
           {content.email ? <div className={`mt-3 inline-flex items-center gap-1 text-xs ${visualVariant.muted}`}><Mail className="h-3.5 w-3.5" />{content.email}</div> : null}
+        </div>
+      </Link>
+    )
+  }
+
+  if (isImageVariant) {
+    return (
+      <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
+        <div className="relative aspect-[4/5] overflow-hidden bg-[#0c1524]">
+          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.05]" intrinsicWidth={960} intrinsicHeight={1200} />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.06)_0%,rgba(7,17,31,0.35)_56%,rgba(7,17,31,0.9)_100%)]" />
+          <span className={`absolute left-4 top-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.badge}`}>
+            <Tag className="h-3.5 w-3.5" />
+            {category}
+          </span>
+          <div className="absolute inset-x-0 bottom-0 p-5">
+            <h3 className={`line-clamp-2 text-[1.35rem] font-semibold leading-tight ${visualVariant.title}`}>{post.title}</h3>
+            <p className={`mt-2 line-clamp-2 text-sm leading-6 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 90 : 120) || 'Explore this visual post.'}</p>
+          </div>
         </div>
       </Link>
     )
