@@ -184,26 +184,55 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         ) : null}
 
         {layoutKey === 'image-masonry' || layoutKey === 'image-portfolio' ? (
-          <section className="mb-12 grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div>
+          <section className="mb-12 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
+            <div className={`rounded-[2.25rem] p-7 shadow-[0_24px_70px_rgba(15,23,42,0.08)] ${ui.panel}`}>
               <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.soft}`}>
-                <Icon className="h-3.5 w-3.5" /> Visual feed
+                <Icon className="h-3.5 w-3.5" /> Visual archive
               </div>
               <h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em]">{taskConfig?.description || 'Latest posts'}</h1>
-              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This gallery now follows the same soft pastel rhythm as the homepage, with brighter cards, lighter panels, and a cleaner visual browsing feel.</p>
+              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>A calmer gallery entrance with clearer wayfinding, brighter card hierarchy, and more deliberate room for the image itself to lead the page.</p>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {['Featured image stories', 'Cleaner browsing rhythm', 'Category-led discovery', 'Profile-aware authorship'].map((item) => (
+                  <div key={item} className={`rounded-[1.4rem] p-4 ${ui.soft}`}>
+                    <p className="text-sm font-semibold text-foreground">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <form className="mt-7 grid gap-3 sm:grid-cols-[1fr_auto]" action={taskConfig?.route || '#'}>
+                <select name="category" defaultValue={normalizedCategory} className={`h-11 rounded-xl px-3 text-sm ${ui.input}`}>
+                  <option value="all">All categories</option>
+                  {CATEGORY_OPTIONS.map((item) => (
+                    <option key={item.slug} value={item.slug}>{item.name}</option>
+                  ))}
+                </select>
+                <button type="submit" className={`h-11 rounded-xl px-5 text-sm font-medium ${ui.button}`}>Apply filters</button>
+              </form>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {showcase[0] ? (
                 <div className={`col-span-2 overflow-hidden rounded-[2rem] ${ui.panel}`}>
-                  <div className="relative h-[280px]">
+                  <div className="relative h-[320px]">
                     <ContentImage src={getPostImage(showcase[0])} alt={showcase[0].title} fill className="object-cover" />
+                  </div>
+                  <div className="flex items-center justify-between gap-4 p-5">
+                    <div>
+                      <p className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.muted}`}>Featured visual</p>
+                      <p className="mt-2 text-xl font-semibold text-foreground">{showcase[0].title}</p>
+                    </div>
+                    <Link href={`${taskConfig?.route || '/images'}/${showcase[0].slug}`} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${ui.button}`}>
+                      Open
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </div>
               ) : null}
-              {showcase.slice(1, 3).map((post, index) => (
+              {showcase.slice(1, 4).map((post, index) => (
                 <div key={post.id} className={`overflow-hidden rounded-[2rem] ${index === 0 ? ui.soft : ui.panel}`}>
                   <div className="relative h-[220px]">
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <p className={`line-clamp-2 text-sm font-semibold ${index === 0 ? 'text-foreground' : 'text-slate-900'}`}>{post.title}</p>
                   </div>
                 </div>
               ))}
@@ -213,18 +242,34 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
 
         {layoutKey === 'profile-creator' || layoutKey === 'profile-business' ? (
           <section className={`mb-12 rounded-[2.2rem] p-8 shadow-[0_24px_70px_rgba(15,23,42,0.1)] ${ui.panel}`}>
-            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-              <div className={`min-h-[240px] overflow-hidden rounded-[2rem] ${ui.soft}`}>
+            <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
+              <div className={`min-h-[280px] overflow-hidden rounded-[2rem] ${ui.soft}`}>
                 {showcase[0] ? (
-                  <div className="relative h-full min-h-[240px]">
+                  <div className="relative h-full min-h-[280px]">
                     <ContentImage src={getPostImage(showcase[0])} alt={showcase[0].title} fill className="object-cover" />
                   </div>
                 ) : null}
               </div>
               <div>
                 <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles with stronger identity, mood, and authorship cues.</h1>
-                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This route shifts toward a portrait-like introduction so identity pages feel closer to creator cards and studio pages than to listings or article indexes.</p>
+                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles that feel curated, authored, and easier to trust at a glance.</h1>
+                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>The layout now opens with a stronger identity block, support facts, and a clearer relationship between profile image, summary, and action.</p>
+                <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                  {['Studio introductions', 'Brand snapshots', 'People behind the work'].map((item) => (
+                    <div key={item} className={`rounded-[1.4rem] p-4 ${ui.soft}`}>
+                      <p className="text-sm font-semibold text-foreground">{item}</p>
+                    </div>
+                  ))}
+                </div>
+                <form className="mt-7 flex flex-wrap gap-3" action={taskConfig?.route || '#'}>
+                  <select name="category" defaultValue={normalizedCategory} className={`h-11 min-w-[220px] rounded-xl px-3 text-sm ${ui.input}`}>
+                    <option value="all">All categories</option>
+                    {CATEGORY_OPTIONS.map((item) => (
+                      <option key={item.slug} value={item.slug}>{item.name}</option>
+                    ))}
+                  </select>
+                  <button type="submit" className={`h-11 rounded-xl px-5 text-sm font-medium ${ui.button}`}>Filter profiles</button>
+                </form>
               </div>
             </div>
           </section>

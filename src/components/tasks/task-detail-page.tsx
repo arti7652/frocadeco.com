@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { buildPostUrl, fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG, getTaskConfig, type TaskKey } from "@/lib/site-config";
 import type { SitePost } from "@/lib/site-connector";
-import { TaskImageCarousel } from "@/components/tasks/task-image-carousel";
 import { cn } from "@/lib/utils";
 import { ArticleComments } from "@/components/tasks/article-comments";
 import { SchemaJsonLd } from "@/components/seo/schema-jsonld";
@@ -143,14 +142,20 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const content = getContent(post);
   const isClassified = task === "classified";
   const isArticle = task === "article";
+  const isImage = task === "image";
   const category = content.category || post.tags?.[0] || taskConfig?.label || task;
-  const description = content.description || post.summary || "Details coming soon.";
+  const description =
+    (typeof content.body === "string" && content.body.trim()) ||
+    (typeof content.description === "string" && content.description.trim()) ||
+    post.summary ||
+    "Details coming soon.";
   const descriptionHtml = !isArticle ? formatRichHtml(description, "Details coming soon.") : "";
   const articleHtml = isArticle ? formatArticleHtml(content, post) : "";
   const articleSummary =
-    post.summary ||
-    (typeof content.excerpt === "string" ? content.excerpt : "") ||
+    (typeof post.summary === "string" && post.summary.trim()) ||
+    (typeof content.excerpt === "string" && content.excerpt.trim()) ||
     "";
+  const articleSummaryHtml = articleSummary ? formatRichHtml(articleSummary, "") : "";
   const articleAuthor =
     (typeof content.author === "string" && content.author.trim()) ||
     post.authorName ||
@@ -167,7 +172,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const images = getImageUrls(post, content);
   const mapEmbedUrl = buildMapEmbedUrl(content.latitude, content.longitude, location);
   const isBookmark = task === "sbm" || task === "social";
-  const hideSidebar = isClassified || isArticle || task === "image" || isBookmark;
+  const hideSidebar = isClassified || isArticle || isImage || isBookmark;
   const related = (await fetchTaskPosts(task, 6))
     .filter((item) => item.slug !== post.slug)
     .filter((item) => {
@@ -226,7 +231,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const schemaPayload = articleSchema ? [articleSchema, breadcrumbSchema] : breadcrumbSchema;
   const { recipe } = getFactoryState();
   const productKind = getProductKind(recipe);
-  const isImage = task === "image";
   const detailTone =
     isArticle
       ? {
@@ -279,7 +283,8 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
           href={taskConfig?.route || "/"}
           className={cn("mb-6 inline-flex items-center text-sm", detailTone.link)}
         >
-          ← Back to {taskConfig?.label || "posts"}
+          <span aria-hidden="true" className="mr-2">←</span>
+          Back to {taskConfig?.label || "posts"}
         </Link>
 
         <div
@@ -305,8 +310,8 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                   <div className={cn("mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm", detailTone.body)}>
                     <span>By {articleAuthor}</span>
                   </div>
-                  {articleSummary ? (
-                    <p className={cn("mt-5 text-base leading-8", detailTone.body)}>{articleSummary}</p>
+                  {articleSummaryHtml ? (
+                    <RichContent html={articleSummaryHtml} className={cn("mt-5 text-base leading-8", detailTone.body)} />
                   ) : null}
                 </div>
                 {images[0] ? (
@@ -339,36 +344,106 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
 
             {!isArticle ? (
               <>
-                {!isBookmark ? (
-                  <div className={cn(isClassified ? "w-full" : "", isImage ? "overflow-hidden rounded-[2.4rem]" : "")}>
-                    {isImage ? (
-                      <div className={cn("overflow-hidden rounded-[2.4rem]", detailTone.panel)}>
-                        <TaskImageCarousel images={images} />
+                {isImage ? (
+                  <section className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
+                    {!isBookmark ? (
+                      <div className="space-y-4">
+                        <div className={cn("relative aspect-[4/3] w-full overflow-hidden rounded-[2.4rem]", detailTone.panel)}>
+                          <ContentImage
+                            src={images[0] || "/placeholder.svg"}
+                            alt={`${post.title} featured image`}
+                            fill
+                            className="object-cover"
+                            intrinsicWidth={1200}
+                            intrinsicHeight={900}
+                          />
+                        </div>
+                        {images.length > 1 ? (
+                          <div className="grid grid-cols-3 gap-4">
+                            {images.slice(1, 4).map((img, idx) => (
+                              <div key={idx} className="relative aspect-square overflow-hidden rounded-full ring-4 ring-white shadow-[0_8px_30px_rgba(149,166,230,0.15)]">
+                                <ContentImage
+                                  src={img}
+                                  alt={`${post.title} image ${idx + 2}`}
+                                  fill
+                                  className="object-cover"
+                                  intrinsicWidth={400}
+                                  intrinsicHeight={400}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
-                    ) : (
-                      <TaskImageCarousel images={images} />
-                    )}
-                  </div>
-                ) : null}
+                    ) : null}
+                    <div className="space-y-6">
+                      <div className={cn("rounded-[2.25rem] p-7", detailTone.panel)}>
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <Badge className={cn("inline-flex items-center gap-1 border-0", detailTone.badge)}>
+                            <Tag className="h-3.5 w-3.5" />
+                            {category}
+                          </Badge>
+                          {location ? (
+                            <span className={cn("inline-flex items-center gap-1", detailTone.body)}>
+                              <MapPin className="h-4 w-4" />
+                              {location}
+                            </span>
+                          ) : null}
+                        </div>
+                        <h1 className={cn("mt-5 text-4xl font-semibold leading-tight sm:text-5xl", detailTone.title)}>{post.title}</h1>
+                        <div className={cn("mt-5 rounded-[1.8rem] p-5", detailTone.soft)}>
+                          <RichContent html={descriptionHtml} className="max-w-none text-slate-600" />
+                        </div>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                          {taskConfig?.route ? (
+                            <Button className={detailTone.button} asChild>
+                              <Link href={taskConfig.route}>Browse more {taskConfig.label}</Link>
+                            </Button>
+                          ) : null}
+                          {content.website ? (
+                            <Button variant="outline" className="rounded-full border-slate-200 bg-white/90" asChild>
+                              <a href={content.website} target="_blank" rel="noreferrer">Visit source</a>
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                ) : (
+                  <>
+                    {!isBookmark ? (
+                      <div className={cn("relative aspect-[16/9] w-full overflow-hidden rounded-[2.4rem]", detailTone.panel, isClassified ? "w-full" : "")}>
+                        <ContentImage
+                          src={images[0] || "/placeholder.svg"}
+                          alt={`${post.title} featured image`}
+                          fill
+                          className="object-cover"
+                          intrinsicWidth={1600}
+                          intrinsicHeight={900}
+                        />
+                      </div>
+                    ) : null}
 
-                <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
-                  <div className="flex flex-wrap items-center gap-3 text-sm">
-                    <Badge className={cn("inline-flex items-center gap-1 border-0", detailTone.badge)}>
-                      <Tag className="h-3.5 w-3.5" />
-                      {category}
-                    </Badge>
-                    {location && (
-                      <span className={cn("inline-flex items-center gap-1", detailTone.body)}>
-                        <MapPin className="h-4 w-4" />
-                        {location}
-                      </span>
-                    )}
-                  </div>
-                  <h1 className={cn("mt-4 text-3xl font-semibold sm:text-5xl", detailTone.title)}>{post.title}</h1>
-                  <div className={cn("mt-4 max-w-4xl rounded-[2rem] p-6", detailTone.panel)}>
-                    <RichContent html={descriptionHtml} className="max-w-3xl text-slate-600" />
-                  </div>
-                </div>
+                    <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
+                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                        <Badge className={cn("inline-flex items-center gap-1 border-0", detailTone.badge)}>
+                          <Tag className="h-3.5 w-3.5" />
+                          {category}
+                        </Badge>
+                        {location ? (
+                          <span className={cn("inline-flex items-center gap-1", detailTone.body)}>
+                            <MapPin className="h-4 w-4" />
+                            {location}
+                          </span>
+                        ) : null}
+                      </div>
+                      <h1 className={cn("mt-4 text-3xl font-semibold sm:text-5xl", detailTone.title)}>{post.title}</h1>
+                      <div className={cn("mt-4 max-w-4xl rounded-[2rem] p-6", detailTone.panel)}>
+                        <RichContent html={descriptionHtml} className="max-w-3xl text-slate-600" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             ) : null}
 
@@ -376,42 +451,34 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
               <div className={cn("mx-auto w-full max-w-4xl rounded-[2rem] p-6", detailTone.panel)}>
                 <h2 className={cn("text-lg font-semibold", detailTone.title)}>Business details</h2>
                 <div className={cn("mt-4 space-y-3 text-sm", detailTone.body)}>
-                  {content.website && (
+                  {content.website ? (
                     <div className="flex items-start gap-2">
                       <Globe className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={content.website}
-                        className={cn("break-all hover:underline", detailTone.title)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <a href={content.website} className={cn("break-all hover:underline", detailTone.title)} target="_blank" rel="noreferrer">
                         {content.website}
                       </a>
                     </div>
-                  )}
-                  {content.phone && (
+                  ) : null}
+                  {content.phone ? (
                     <div className="flex items-start gap-2">
                       <Phone className="mt-0.5 h-4 w-4" />
                       <span>{content.phone}</span>
                     </div>
-                  )}
-                  {content.email && (
+                  ) : null}
+                  {content.email ? (
                     <div className="flex items-start gap-2">
                       <Mail className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={`mailto:${content.email}`}
-                        className={cn("break-all hover:underline", detailTone.title)}
-                      >
+                      <a href={`mailto:${content.email}`} className={cn("break-all hover:underline", detailTone.title)}>
                         {content.email}
                       </a>
                     </div>
-                  )}
-                  {location && (
+                  ) : null}
+                  {location ? (
                     <div className="flex items-start gap-2">
                       <MapPin className="mt-0.5 h-4 w-4" />
                       <span>{location}</span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ) : null}
@@ -431,112 +498,89 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
               <div className={cn("mx-auto w-full max-w-4xl rounded-[2rem] p-4", detailTone.panel)}>
                 <p className={cn("text-sm font-semibold", detailTone.title)}>Location map</p>
                 <div className={cn("mt-4 overflow-hidden rounded-xl", detailTone.soft)}>
-                  <iframe
-                    title="Business location map"
-                    src={mapEmbedUrl}
-                    className="h-56 w-full"
-                    loading="lazy"
-                  />
+                  <iframe title="Business location map" src={mapEmbedUrl} className="h-56 w-full" loading="lazy" />
                 </div>
               </div>
             ) : null}
-
           </div>
 
           {!hideSidebar ? (
             <aside className="space-y-6">
-            <div className={cn("rounded-[2rem] p-6", detailTone.panel)}>
-              <h2 className={cn("text-lg font-semibold", detailTone.title)}>Listing details</h2>
+              <div className={cn("rounded-[2rem] p-6", detailTone.panel)}>
+                <h2 className={cn("text-lg font-semibold", detailTone.title)}>Listing details</h2>
                 <div className={cn("mt-4 space-y-3 text-sm", detailTone.body)}>
-                  {content.website && (
+                  {content.website ? (
                     <div className="flex items-start gap-2">
                       <Globe className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={content.website}
-                        className={cn("break-all hover:underline", detailTone.title)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <a href={content.website} className={cn("break-all hover:underline", detailTone.title)} target="_blank" rel="noreferrer">
                         {content.website}
                       </a>
                     </div>
-                  )}
-                  {content.phone && (
+                  ) : null}
+                  {content.phone ? (
                     <div className="flex items-start gap-2">
                       <Phone className="mt-0.5 h-4 w-4" />
                       <span>{content.phone}</span>
                     </div>
-                  )}
-                  {content.email && (
+                  ) : null}
+                  {content.email ? (
                     <div className="flex items-start gap-2">
                       <Mail className="mt-0.5 h-4 w-4" />
-                      <a
-                        href={`mailto:${content.email}`}
-                        className={cn("break-all hover:underline", detailTone.title)}
-                      >
+                      <a href={`mailto:${content.email}`} className={cn("break-all hover:underline", detailTone.title)}>
                         {content.email}
                       </a>
                     </div>
-                  )}
-                  {location && (
+                  ) : null}
+                  {location ? (
                     <div className="flex items-start gap-2">
                       <MapPin className="mt-0.5 h-4 w-4" />
                       <span>{location}</span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
-              {content.website ? (
-                <Button className={cn("mt-5 w-full", detailTone.button)} asChild>
-                  <a href={content.website} target="_blank" rel="noreferrer">
-                    Visit Website
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-
-            {mapEmbedUrl ? (
-              <div className={cn("rounded-[2rem] p-4", detailTone.panel)}>
-                <p className={cn("text-sm font-semibold", detailTone.title)}>Location map</p>
-                <div className={cn("mt-4 overflow-hidden rounded-xl", detailTone.soft)}>
-                  <iframe
-                    title="Business location map"
-                    src={mapEmbedUrl}
-                    className="h-56 w-full"
-                    loading="lazy"
-                  />
-                </div>
+                {content.website ? (
+                  <Button className={cn("mt-5 w-full", detailTone.button)} asChild>
+                    <a href={content.website} target="_blank" rel="noreferrer">
+                      Visit Website
+                    </a>
+                  </Button>
+                ) : null}
               </div>
-            ) : null}
 
-          </aside>
+              {mapEmbedUrl ? (
+                <div className={cn("rounded-[2rem] p-4", detailTone.panel)}>
+                  <p className={cn("text-sm font-semibold", detailTone.title)}>Location map</p>
+                  <div className={cn("mt-4 overflow-hidden rounded-xl", detailTone.soft)}>
+                    <iframe title="Business location map" src={mapEmbedUrl} className="h-56 w-full" loading="lazy" />
+                  </div>
+                </div>
+              ) : null}
+            </aside>
           ) : null}
         </div>
 
         <section className="mt-12">
           {related.length ? (
             <>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className={cn("text-xl font-semibold", detailTone.title)}>
-                More in {category}
-              </h2>
-              {taskConfig?.route && (
-                <Link
-                  href={taskConfig.route}
-                  className={cn("text-sm", detailTone.link)}
-                >
-                  View all
-                </Link>
-              )}
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <TaskPostCard
-                  key={item.id}
-                  post={item}
-                  href={buildPostUrl(task, item.slug)}
-                />
-              ))}
-            </div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className={cn("text-xl font-semibold", detailTone.title)}>
+                  More in {category}
+                </h2>
+                {taskConfig?.route ? (
+                  <Link href={taskConfig.route} className={cn("text-sm", detailTone.link)}>
+                    View all
+                  </Link>
+                ) : null}
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item) => (
+                  <TaskPostCard
+                    key={item.id}
+                    post={item}
+                    href={buildPostUrl(task, item.slug)}
+                  />
+                ))}
+              </div>
             </>
           ) : null}
           <nav className={cn("mt-6 rounded-[2rem] p-4", detailTone.panel)}>
@@ -546,7 +590,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                 <li key={`link-${item.id}`}>
                   <Link
                     href={buildPostUrl(task, item.slug)}
-                    className={cn("underline-offset-4 hover:underline", isArticle ? 'text-[#2f1d16]' : 'text-[#78ebd8]')}
+                    className={cn("underline-offset-4 hover:underline", isArticle ? "text-[#2f1d16]" : "text-slate-700")}
                   >
                     {item.title}
                   </Link>
@@ -556,7 +600,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                 <li>
                   <Link
                     href={taskConfig.route}
-                    className={cn("underline-offset-4 hover:underline", isArticle ? 'text-[#2f1d16]' : 'text-[#78ebd8]')}
+                    className={cn("underline-offset-4 hover:underline", isArticle ? "text-[#2f1d16]" : "text-slate-700")}
                   >
                     Browse all {taskConfig.label}
                   </Link>
@@ -565,7 +609,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
               <li>
                 <Link
                   href={`/search?q=${encodeURIComponent(category)}`}
-                  className={cn("underline-offset-4 hover:underline", isArticle ? 'text-[#2f1d16]' : 'text-[#78ebd8]')}
+                  className={cn("underline-offset-4 hover:underline", isArticle ? "text-[#2f1d16]" : "text-slate-700")}
                 >
                   Search more in {category}
                 </Link>

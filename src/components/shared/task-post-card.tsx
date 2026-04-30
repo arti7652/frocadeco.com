@@ -13,6 +13,8 @@ type ListingContent = {
   category?: string
   description?: string
   email?: string
+  website?: string
+  logo?: string
 }
 
 const stripHtml = (value?: string | null) =>
@@ -27,7 +29,7 @@ const getExcerpt = (value?: string | null, maxLength = 140) => {
   const text = stripHtml(value)
   if (!text) return ''
   if (text.length <= maxLength) return text
-  return `${text.slice(0, maxLength).trimEnd()}…`
+  return `${text.slice(0, maxLength).trimEnd()}...`
 }
 
 const getContent = (post: SitePost): ListingContent => {
@@ -107,9 +109,13 @@ export function TaskPostCard({
   const visualVariant = cardStyles[getVariantForTask(variant)]
   const isBookmarkVariant = variant === 'sbm' || variant === 'social'
   const isImageVariant = variant === 'image'
+  const isProfileVariant = variant === 'profile'
   const imageAspect = isImageVariant ? 'aspect-[4/5]' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
   const altText = `${post.title} ${category} ${variant === 'listing' ? 'business listing' : variant} image`
   const imageSizes = variant === 'article' ? '(max-width: 640px) 90vw, (max-width: 1024px) 48vw, 420px' : variant === 'image' ? '(max-width: 640px) 82vw, (max-width: 1024px) 34vw, 320px' : '(max-width: 640px) 85vw, (max-width: 1024px) 42vw, 340px'
+  const websiteLabel = content.website
+    ? content.website.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    : null
 
   const { recipe } = getFactoryState()
   const isDirectoryProduct = recipe.homeLayout === 'listing-home' || recipe.homeLayout === 'classified-home'
@@ -186,17 +192,55 @@ export function TaskPostCard({
 
   if (isImageVariant) {
     return (
+      <Link href={href} className="group flex flex-col items-center text-center">
+        <div className="relative aspect-square w-full overflow-hidden rounded-full bg-slate-100 shadow-[0_12px_40px_rgba(149,166,230,0.15)] ring-4 ring-white transition duration-300 group-hover:shadow-[0_20px_50px_rgba(149,166,230,0.25)] group-hover:ring-[6px]">
+          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.08]" intrinsicWidth={400} intrinsicHeight={400} />
+          <span className={`absolute left-1/2 top-3 -translate-x-1/2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] ${visualVariant.badge}`}>
+            {category}
+          </span>
+        </div>
+        <div className="mt-4 px-2">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">{post.title}</h3>
+        </div>
+      </Link>
+    )
+  }
+
+  if (isProfileVariant) {
+    const initial = post.title.slice(0, 1).toUpperCase()
+
+    return (
       <Link href={href} className={`group flex h-full flex-col overflow-hidden transition duration-300 ${visualVariant.frame}`}>
-        <div className="relative aspect-[4/5] overflow-hidden bg-[#0c1524]">
-          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={75} className="object-cover transition-transform duration-500 group-hover:scale-[1.05]" intrinsicWidth={960} intrinsicHeight={1200} />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.06)_0%,rgba(7,17,31,0.35)_56%,rgba(7,17,31,0.9)_100%)]" />
+        <div className="relative h-36 overflow-hidden bg-[linear-gradient(135deg,#fff1ea_0%,#f7e7ff_60%,#fff9f2_100%)]">
+          <ContentImage src={image} alt={altText} fill sizes={imageSizes} quality={70} className="object-cover opacity-40 transition-transform duration-500 group-hover:scale-[1.04]" intrinsicWidth={960} intrinsicHeight={720} />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.72)_100%)]" />
           <span className={`absolute left-4 top-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${visualVariant.badge}`}>
             <Tag className="h-3.5 w-3.5" />
             {category}
           </span>
-          <div className="absolute inset-x-0 bottom-0 p-5">
-            <h3 className={`line-clamp-2 text-[1.35rem] font-semibold leading-tight ${visualVariant.title}`}>{post.title}</h3>
-            <p className={`mt-2 line-clamp-2 text-sm leading-6 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 90 : 120) || 'Explore this visual post.'}</p>
+        </div>
+        <div className="relative flex flex-1 flex-col p-5 pt-0">
+          <div className="-mt-8 flex items-end justify-between gap-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-[1.35rem] border border-white/90 bg-white text-xl font-semibold text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
+              {content.logo ? (
+                <div className="relative h-full w-full">
+                  <ContentImage src={content.logo} alt={`${post.title} logo`} fill sizes="64px" className="object-cover" intrinsicWidth={128} intrinsicHeight={128} />
+                </div>
+              ) : (
+                initial
+              )}
+            </div>
+            {websiteLabel ? (
+              <span className={`rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium ${visualVariant.muted}`}>
+                {websiteLabel}
+              </span>
+            ) : null}
+          </div>
+          <h3 className={`mt-4 line-clamp-2 text-xl font-semibold leading-snug ${visualVariant.title}`}>{post.title}</h3>
+          <p className={`mt-3 line-clamp-3 text-sm leading-7 ${visualVariant.muted}`}>{getExcerpt(content.description || post.summary, compact ? 110 : 150) || 'Explore this profile.'}</p>
+          <div className="mt-auto flex flex-wrap gap-3 pt-5 text-xs">
+            {content.location ? <span className={`inline-flex items-center gap-1 ${visualVariant.muted}`}><MapPin className="h-3.5 w-3.5" />{content.location}</span> : null}
+            {content.email ? <span className={`inline-flex items-center gap-1 ${visualVariant.muted}`}><Mail className="h-3.5 w-3.5" />{content.email}</span> : null}
           </div>
         </div>
       </Link>

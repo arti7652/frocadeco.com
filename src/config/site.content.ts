@@ -1,9 +1,7 @@
 import type { TaskKey } from '@/lib/site-config'
 
 export const siteContent = {
-  navbar: {
-    tagline: 'Cloud gallery for image-led publishing',
-  },
+  navbar: {},
   footer: {
     tagline: 'Files, galleries, and visual collections',
   },

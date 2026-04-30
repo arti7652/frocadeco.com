@@ -3,8 +3,6 @@ import { Sparkles, Wand2, GalleryVerticalEnd, Users } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { mockTeamMembers } from '@/data/mock-data'
 import { SITE_CONFIG } from '@/lib/site-config'
 
 const highlights = [
@@ -67,33 +65,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-[2rem] border border-white/70 bg-white/78 p-8 shadow-[0_24px_80px_rgba(209,173,230,0.16)] backdrop-blur-xl">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Team</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">The people shaping the visual experience</h2>
-            </div>
-            <p className="max-w-2xl text-sm leading-7 text-slate-500">Every profile here supports the same goal: make image-led publishing feel warm, polished, and easier to navigate across the platform.</p>
-          </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {mockTeamMembers.map((member) => (
-              <div key={member.id} className="rounded-[1.7rem] border border-white/70 bg-[linear-gradient(135deg,#fff6ef_0%,#f7ecff_100%)] p-6 shadow-[0_12px_30px_rgba(209,173,230,0.12)] transition-transform hover:-translate-y-1">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={member.avatar} alt={member.name} />
-                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-semibold">{member.name}</p>
-                    <p className="text-xs text-slate-500">{member.role}</p>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-7 text-slate-500">{member.bio}</p>
-                <p className="mt-4 text-xs uppercase tracking-[0.18em] text-slate-400">{member.location}</p>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
       <Footer />
     </div>

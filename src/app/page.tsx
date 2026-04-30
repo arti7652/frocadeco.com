@@ -8,7 +8,7 @@ import { SchemaJsonLd } from '@/components/seo/schema-jsonld'
 import { TaskPostCard } from '@/components/shared/task-post-card'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
 import { buildPageMetadata } from '@/lib/seo'
-import { fetchTaskPosts } from '@/lib/task-data'
+import { fetchTaskPosts, getPostTaskKey } from '@/lib/task-data'
 import { siteContent } from '@/config/site.content'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind, type ProductKind } from '@/design/factory/get-product-kind'
@@ -39,6 +39,10 @@ const taskIcons: Record<TaskKey, any> = {
   classified: Tag,
   image: ImageIcon,
   profile: User,
+  social: undefined,
+  pdf: undefined,
+  org: undefined,
+  comment: undefined
 }
 
 function resolveTaskKey(value: unknown, fallback: TaskKey): TaskKey {
@@ -247,14 +251,14 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
           <div className="grid gap-4 md:grid-cols-2">
             {(profilePosts.length ? profilePosts : classifiedPosts).slice(0, 4).map((post) => {
               const meta = getPostMeta(post)
-              const taskKey = resolveTaskKey(post.task, profilePosts.length ? 'profile' : 'classified')
+              const taskKey = getPostTaskKey(post) || (profilePosts.length ? 'profile' : 'classified')
               return (
                 <Link key={post.id} href={getTaskHref(taskKey, post.slug)} className={`overflow-hidden rounded-[1.8rem] ${tone.panel}`}>
                   <div className="relative h-44 overflow-hidden">
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                   </div>
                   <div className="p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || post.task || 'Profile'}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || getPostTaskKey(post) || 'Profile'}</p>
                     <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
                     <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Quick access to local information and related surfaces.'}</p>
                   </div>
@@ -354,9 +358,9 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
   const leftPost = heroGallery[0] || lead
   const centerPost = heroGallery[1] || leftPost
   const rightPost = heroGallery[2] || lead
-  const leftHref = leftPost ? getTaskHref(resolveTaskKey(leftPost.task, 'image'), leftPost.slug) : '/images'
-  const centerHref = centerPost ? getTaskHref(resolveTaskKey(centerPost.task, 'image'), centerPost.slug) : '/images'
-  const rightHref = rightPost ? getTaskHref(resolveTaskKey(rightPost.task, 'image'), rightPost.slug) : '/images'
+  const leftHref = leftPost ? getTaskHref(getPostTaskKey(leftPost) || 'image', leftPost.slug) : '/images'
+  const centerHref = centerPost ? getTaskHref(getPostTaskKey(centerPost) || 'image', centerPost.slug) : '/images'
+  const rightHref = rightPost ? getTaskHref(getPostTaskKey(rightPost) || 'image', rightPost.slug) : '/images'
 
   return (
     <main className={tone.shell}>
@@ -532,7 +536,7 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
                   <p className={`mt-4 text-sm leading-8 ${tone.muted}`}>
                     {lead.summary || 'A lead visual surface with softer spacing, warmer gradients, and a calmer assistant-led rhythm pulled closer to the reference interface.'}
                   </p>
-                  <Link href={getTaskHref(resolveTaskKey(lead.task, 'image'), lead.slug)} className={`mt-7 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
+                  <Link href={getTaskHref(getPostTaskKey(lead) || 'image', lead.slug)} className={`mt-7 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
                     View image post
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -552,29 +556,28 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
 
             <div className="grid gap-4 md:grid-cols-3">
               {creators.map((post) => (
-                <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
-                  <div className="relative h-40 overflow-hidden rounded-[1.2rem]">
+                <Link key={post.id} href={getTaskHref(getPostTaskKey(post) || 'image', post.slug)} className={`rounded-[1.4rem] p-4 ${tone.soft}`}>
+                  <div className="relative h-32 overflow-hidden rounded-[1rem]">
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
-                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Supporting visual lane with a quieter presentation.'}</p>
+                  <h3 className="mt-3 line-clamp-2 text-base font-semibold leading-snug">{post.title}</h3>
+                  <p className={`mt-2 line-clamp-2 text-sm leading-6 ${tone.muted}`}>{post.summary || 'Supporting visual lane with a quieter presentation.'}</p>
                 </Link>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="mt-12">
+        <div className="mt-10">
           <div className="grid gap-4 md:grid-cols-3">
             {stream.map((post, index) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'image'), post.slug)} className={`overflow-hidden rounded-[1.8rem] ${index === 1 ? tone.panel : tone.soft}`}>
-                <div className="relative h-56 overflow-hidden">
+              <Link key={post.id} href={getTaskHref(getPostTaskKey(post) || 'image', post.slug)} className={`overflow-hidden rounded-[1.4rem] ${index === 1 ? tone.panel : tone.soft}`}>
+                <div className="relative h-44 overflow-hidden">
                   <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                 </div>
-                <div className="p-5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">Lane {index + 1}</p>
-                  <h3 className="mt-3 text-xl font-semibold">{post.title}</h3>
-                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'A supporting gallery tile in the homepage stream.'}</p>
+                <div className="p-4">
+                  <h3 className="line-clamp-2 text-base font-semibold leading-snug">{post.title}</h3>
+                  <p className={`mt-2 line-clamp-2 text-sm leading-6 ${tone.muted}`}>{post.summary || 'A supporting gallery tile in the homepage stream.'}</p>
                 </div>
               </Link>
             ))}
@@ -616,7 +619,7 @@ function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }
 
           <div className="grid gap-4 md:grid-cols-2">
             {collections.map((post) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
+              <Link key={post.id} href={getTaskHref(getPostTaskKey(post) || 'sbm', post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
                 <h3 className="mt-3 text-2xl font-semibold">{post.title}</h3>
                 <p className={`mt-3 text-sm leading-8 ${tone.muted}`}>{post.summary || 'A calmer bookmark surface with room for context and grouping.'}</p>
